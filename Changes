@@ -1,4 +1,10 @@
 This is the change history of POE::XS::Loop::Poll.
 
+0.002 Wed Jul  2 14:13:06 EST 2008
+ - fix {configure,build}_requires to POE::Test::Loops instead of
+   POE::Test::Loop.  Since many of the CPAN testers are still broken
+   wrt configure_requires I'll still get failures, but they'll be 
+   someone elses fault.
+
 0.001 Fri Jun 27 16:57:49 EST 2008
  - initial release

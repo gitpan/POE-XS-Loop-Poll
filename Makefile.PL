@@ -118,9 +118,9 @@ if ($eu_mmv > 6.3001) {
   $opts{LICENSE} = 'perl';
   $opts{EXTRA_META} = <<META;
 configure_requires:
-  POE::Test::Loop: 0.99
+  POE::Test::Loops: 0.99
 build_requires:
-  POE::Test::Loop: 0.99
+  POE::Test::Loops: 0.99
 META
 }
 
