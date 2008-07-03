@@ -2,6 +2,7 @@
 use strict;
 use ExtUtils::MakeMaker;
 use Getopt::Long;
+use POE::Test::Loops 1.001;
 
 my $trace;
 my $default;
@@ -59,13 +60,7 @@ if ($ret =~ /^n$/i) {
 
 print "\n";
 
-system 
-  ( 
-   $^X, '-S', 'poe-gen-tests',
-   '--dirbase', 't', 
-   '--loop', 'POE::XS::Loop::Poll' 
-  )
-  and die $!;
+POE::Test::Loops::generate('t', [ 'POE::XS::Loop::Poll' ], 0);
   
 my %opts = 
   (
@@ -74,7 +69,7 @@ my %opts =
    OBJECT => 'Poll.o alloc.o poexs.o',
    PREREQ_PM => {
 		 'POE'    => 1.0003,
-		 'POE::Test::Loops' => 0.99,
+		 'POE::Test::Loops' => 1.001,
 		},
    test => {
 	    TESTS => 't/poe_xs_loop_poll/*.t',
@@ -118,9 +113,9 @@ if ($eu_mmv > 6.3001) {
   $opts{LICENSE} = 'perl';
   $opts{EXTRA_META} = <<META;
 configure_requires:
-  POE::Test::Loops: 0.99
+  POE::Test::Loops: 1.001
 build_requires:
-  POE::Test::Loops: 0.99
+  POE::Test::Loops: 1.001
 META
 }
 

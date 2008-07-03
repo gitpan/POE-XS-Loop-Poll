@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:                POE-XS-Loop-Poll
-version:             0.002
+version:             0.003
 abstract:            XS loop implementation for POE
 license:             perl
 author:              
@@ -9,11 +9,11 @@ generated_by:        ExtUtils::MakeMaker version 6.44
 distribution_type:   module
 requires:     
     POE:                           1.0003
-    POE::Test::Loops:              0.99
+    POE::Test::Loops:              1.001
 meta-spec:
     url:     http://module-build.sourceforge.net/META-spec-v1.3.html
     version: 1.3
 configure_requires:
-  POE::Test::Loops: 0.99
+  POE::Test::Loops: 1.001
 build_requires:
-  POE::Test::Loops: 0.99
+  POE::Test::Loops: 1.001

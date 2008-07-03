@@ -1,5 +1,10 @@
 This is the change history of POE::XS::Loop::Poll.
 
+0.003 Thu Jul  3 11:07:39 EST 2008
+ - depend on POE::Test::Loops 1.001 and use the new generate() function
+   instead of running poe-gen-tests.
+ - bump for release
+
 0.002 Wed Jul  2 14:13:06 EST 2008
  - fix {configure,build}_requires to POE::Test::Loops instead of
    POE::Test::Loop.  Since many of the CPAN testers are still broken
