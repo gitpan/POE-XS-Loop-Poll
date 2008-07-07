@@ -69,7 +69,7 @@ my %opts =
    OBJECT => 'Poll.o alloc.o poexs.o',
    PREREQ_PM => {
 		 'POE'    => 1.0003,
-		 'POE::Test::Loops' => 1.001,
+		 'POE::Test::Loops' => 1.002,
 		},
    test => {
 	    TESTS => 't/poe_xs_loop_poll/*.t',
@@ -113,9 +113,9 @@ if ($eu_mmv > 6.3001) {
   $opts{LICENSE} = 'perl';
   $opts{EXTRA_META} = <<META;
 configure_requires:
-  POE::Test::Loops: 1.001
+  POE::Test::Loops: 1.002
 build_requires:
-  POE::Test::Loops: 1.001
+  POE::Test::Loops: 1.002
 META
 }
 

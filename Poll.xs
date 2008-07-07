@@ -275,7 +275,7 @@ lp_loop_do_timeslice(SV *kernel) {
     int i;
     POE_TRACE_FILE(("<fh> poll() => %d\n", count));
     POE_TRACE_FILE(("<fh> /---- XS POLL FDS OUT ----\n"));
-    for (i = 0; i < count; ++i) {
+    for (i = 0; i < lp_fd_count; ++i) {
       if (lp_fds[i].revents) {
         POE_TRACE_FILE(("<fh> | Index %2d fd %d mask %x (%s)\n", i, 
           lp_fds[i].fd, lp_fds[i].revents, poll_mode_names(lp_fds[i].revents)));
@@ -312,14 +312,14 @@ lp_loop_do_timeslice(SV *kernel) {
       if (lp_fds[i].revents) {
 	int revents = lp_fds[i].revents;
 	for (mode = MODE_RD; mode <= MODE_EX; ++mode) {
-	  if (revents & masks[mode]) {
+	  if ((lp_fds[i].events & masks[mode])
+	      && revents & (masks[mode] | POLLHUP | POLLERR | POLLNVAL)) {
 	    fds[mode][counts[mode]++] = lp_fds[i].fd;
 	  }
 	}
       }
     }
 
-    POE_TRACE_FILE((" - queueing events\n"));
     for (mode = MODE_RD; mode <= MODE_EX; ++mode) {
       if (counts[mode])
 	poe_enqueue_data_ready(kernel, mode, fds[mode], counts[mode]);

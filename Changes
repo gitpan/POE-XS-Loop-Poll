@@ -1,5 +1,12 @@
 This is the change history of POE::XS::Loop::Poll.
 
+0.004 Mon Jul  7 11:08:24 EST 2008
+ - depend on POE::Test::Loops 1.002 for new tests
+ - fix handling of error events
+ - fix tracing of poll() results
+ - remove some old non-"standard" tracing
+ - bump for release
+
 0.003 Thu Jul  3 11:07:39 EST 2008
  - depend on POE::Test::Loops 1.001 and use the new generate() function
    instead of running poe-gen-tests.
