@@ -9,4 +9,6 @@ poexs.h
 poexs.c
 Poll.xs
 README
+typemap
+
 META.yml                                 Module meta-data (added by MakeMaker)

@@ -1,5 +1,9 @@
 This is the change history of POE::XS::Loop::Poll.
 
+0.005 Tue Jul  8 10:26:07 EST 2008
+ - add a typemap entry for PerlIO for older perls
+ - bump to 0.005
+
 0.004 Mon Jul  7 11:08:24 EST 2008
  - depend on POE::Test::Loops 1.002 for new tests
  - fix handling of error events
