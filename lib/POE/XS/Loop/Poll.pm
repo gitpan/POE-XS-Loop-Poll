@@ -7,7 +7,7 @@ BEGIN {
     # noisy
     *POE::Kernel::TRACE_CALLS = sub () { 0 };
   }
-  $VERSION = '0.005';
+  $VERSION = '0.006';
   eval {
     # try XSLoader first, DynaLoader has annoying baggage
     require XSLoader;

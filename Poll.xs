@@ -238,7 +238,7 @@ lp_loop_do_timeslice(SV *kernel) {
   double delay = 3600;
   int count;
   double now;
-  
+
   POE_TRACE_CALL(("<cl> loop_do_timeslice()\n"));
 
   poe_test_if_kernel_idle(kernel);
@@ -291,7 +291,12 @@ lp_loop_do_timeslice(SV *kernel) {
   POE_STAT_ADD(kernel, "idle_seconds", poe_timeh()-now);
 
   if (count < 0) {
-    warn("poll() error: %d\n", errno);
+    if (errno != EINPROGRESS &&
+	errno != EWOULDBLOCK &&
+	errno != EINTR) {
+      /* pass $! for auto-magical text description of errno */
+      poe_trap("<fh> poll error: " POE_SV_FORMAT, get_sv("!", 0));
+    }
   }
   else if (count) {
     int mode;
