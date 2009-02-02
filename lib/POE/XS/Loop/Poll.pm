@@ -7,7 +7,7 @@ BEGIN {
     # noisy
     *POE::Kernel::TRACE_CALLS = sub () { 0 };
   }
-  $VERSION = '0.006';
+  $VERSION = '0.007';
   eval {
     # try XSLoader first, DynaLoader has annoying baggage
     require XSLoader;
@@ -57,6 +57,9 @@ Relies upon small fd numbers, but then a lot of code does.
 
 Will fail badly if your code uses POE from more than one Perl thread.
 
+poll() on OS X doesn't support ptys, hence POE::XS::Loop::Poll won't
+work with ptys on OS X.
+
 =head1 LICENSE
 
 POE::XS::Loop::Poll is licensed under the same terms as Perl itself.
@@ -71,6 +74,7 @@ Tony Cook <tonyc@cpan.org>
 
 sub skip_tests {
   $ENV{POE_EVENT_LOOP} = "POE::XS::Loop::Poll";
+  $ENV{POE_LOOP_USES_POLL} = 1;
   return;
 }
 

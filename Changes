@@ -1,5 +1,13 @@
 This is the change history of POE::XS::Loop::Poll.
 
+0.007 Mon Feb  2 11:43:46 EST 2009
+ - add t/poe_xs_loop_poll/*.t to the list of files deleted by make clean
+ - set the new POE_LOOP_USES_POLL from POE::Test::Loops 1.003 to skip
+   tests with ptys on OS X (darwin).
+ - remove "requires" for POE::Loop::Tests, it's only needed during
+   configure and test
+ - bump to 0.007 for release
+
 0.006 Sun Jul 20 09:13:44 EST 2008
  - expected poll failures no longer result in a warning.  RT #37507
  - unexpected poll failures now result in a call to 

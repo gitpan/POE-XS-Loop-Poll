@@ -68,12 +68,12 @@ my %opts =
    VERSION_FROM => 'lib/POE/XS/Loop/Poll.pm',
    OBJECT => 'Poll.o alloc.o poexs.o',
    PREREQ_PM => {
-		 'POE'    => 1.0003,
-		 'POE::Test::Loops' => 1.002,
+		 'POE'    => 1.003,
 		},
    test => {
 	    TESTS => 't/poe_xs_loop_poll/*.t',
 	   },
+   clean => { FILES => 't/poe_xs_loop_poll/*.t' },
   );
 my $eu_mmv = eval $ExtUtils::MakeMaker::VERSION;
 if ($eu_mmv > 6.06) {
@@ -108,15 +108,17 @@ TRACEMSG
 # LICENSE was introduced in 6.30_01, but Debian etch includes
 # (as of 2007/01/12) an ExtUtils::MakeMaker versioned 6.30_01 without
 # LICENSE support
-# EXTRA_META was also introduced in 6.30_01
 if ($eu_mmv > 6.3001) {
   $opts{LICENSE} = 'perl';
-  $opts{EXTRA_META} = <<META;
-configure_requires:
-  POE::Test::Loops: 1.002
-build_requires:
-  POE::Test::Loops: 1.002
-META
+}
+# META_MERGE was introduced in 6.45_01 with a fix in 6.46
+# previously we used EXTRA_META, which is deprecated
+if ($eu_mmv >= 6.46) {
+  $opts{META_MERGE} = 
+    {
+     configure_requires => { "POE::Test::Loops" => "1.003" },
+     build_requires => { "POE::Test::Loops" => "1.003" },
+    };
 }
 
 WriteMakefile(%opts);

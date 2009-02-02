@@ -226,6 +226,9 @@ poll_mode_names(int mask) {
   case POLLOUT | POLLIN | POLLPRI:
     return "POLLOUT | POLLIN | POLLPRI";
 
+  case POLLNVAL:
+    return "POLLNVAL";
+
   default:
     return "Unknown";
   }
