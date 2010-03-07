@@ -7,7 +7,7 @@ BEGIN {
     # noisy
     *POE::Kernel::TRACE_CALLS = sub () { 0 };
   }
-  $VERSION = '0.007';
+  $VERSION = '1.000';
   eval {
     # try XSLoader first, DynaLoader has annoying baggage
     require XSLoader;
@@ -59,6 +59,21 @@ Will fail badly if your code uses POE from more than one Perl thread.
 
 poll() on OS X doesn't support ptys, hence POE::XS::Loop::Poll won't
 work with ptys on OS X.
+
+If you see an error:
+
+  POE::XS::Loop::Poll hasn't been initialized correctly
+
+then the loop hasn't been loaded correctly, in POE <= 1.287 the
+following:
+
+  # this doesn't work
+  use POE qw(XS::Loop::Poll);
+
+will not load the loop correctly, you will need to do:
+
+  use POE::Kernel { loop => 'POE::XS::Loop::Poll' };
+  use POE;
 
 =head1 LICENSE
 

@@ -16,6 +16,9 @@
 #endif
 
 extern void
+poe_initialize(void);
+
+extern void
 poe_enqueue_data_ready(SV *kernel, int mode, int *fds, int fd_count);
 
 extern void
@@ -42,12 +45,15 @@ poe_trap(const char *fmt, ...);
 
 extern void poexs_trace_file(const char *fmt, ...);
 #define POE_TRACE_FILE(foo) poexs_trace_file foo
+extern int poexs_tracing_files(void);
 
 extern void poexs_trace_event(const char *fmt, ...);
 #define POE_TRACE_EVENT(foo) poexs_trace_event foo
+extern int poexs_tracing_events(void);
 
 extern void poexs_trace_call(const char *fmt, ...);
 #define POE_TRACE_CALL(foo) poexs_trace_call foo
+extern int poexs_tracing_calls(void);
 
 extern void 
 poexs_data_stat_add(SV *kernel, const char *name, double value);

@@ -116,8 +116,8 @@ if ($eu_mmv > 6.3001) {
 if ($eu_mmv >= 6.46) {
   $opts{META_MERGE} = 
     {
-     configure_requires => { "POE::Test::Loops" => "1.003" },
-     build_requires => { "POE::Test::Loops" => "1.003" },
+     configure_requires => { "POE::Test::Loops" => "1.033" },
+     build_requires => { "POE::Test::Loops" => "1.033" },
     };
 }
 

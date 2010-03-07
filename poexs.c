@@ -1,5 +1,7 @@
 #include "poexs.h"
 
+static NV (*th_nvtime)(void);
+
 /*
 =head1 NAME
 
@@ -54,6 +56,21 @@ formatting SVs.
 
 =over
 
+=item poe_initialize()
+
+=cut
+*/
+
+void
+poe_initialize(void) {
+  SV **svp = hv_fetch(PL_modglobal, "Time::NVtime", 12, 0);
+  if (svp && SvIOK(*svp)) {
+    POE_TRACE_CALL(("<cl> Using Time::HiRes for time"));
+    th_nvtime = INT2PTR(NV (*)(void), SvIV(*svp));
+  }
+}
+
+/*
 =item poe_enqueue_data_ready(kernel, mode, fds, fd_count)
 
 Calls the _enqueue_data_ready() perl method on the given kernel
@@ -77,12 +94,38 @@ Return: void
 =cut
 */
 
+#ifdef XS_LOOP_TRACE
+
+static int trace_initialized;
+
+static int trace_files;
+static int trace_events;
+static int trace_calls;
+static int trace_statistics;
+
+static void
+do_trace_initialize(void);
+
+#define TRACE_INITIALIZE() if (!trace_initialized) do_trace_initialize()
+
+#endif
+
 void
 poe_enqueue_data_ready(SV *kernel, int mode, int *fds, int fd_count) {
   dSP;
   int i;
 
-  POE_TRACE_CALL(("<cl> poe_enqueue_data_ready(mode %d (%s)", mode, poe_mode_names(mode)));
+#ifdef XS_LOOP_TRACE
+  if (poe_tracing_calls()) {
+    SV *sv = newSVpvf("<cl> poe_enqueue_data_ready(mode %d (%s)", mode, poe_mode_names(mode));
+    for (i = 0; i < fd_count; ++i) {
+      sv_catpvf(sv, ", %d", fds[i]);
+    }
+    sv_catpv(sv, ")\n");
+    poexs_trace_call("%s", SvPV_nolen(sv));
+    SvREFCNT_dec(sv);
+  }
+#endif
 
   ENTER;
   SAVETMPS;
@@ -91,10 +134,8 @@ poe_enqueue_data_ready(SV *kernel, int mode, int *fds, int fd_count) {
   PUSHs(sv_2mortal(newSVsv(kernel)));
   PUSHs(sv_2mortal(newSViv(mode)));
   for (i = 0; i < fd_count; ++i) {
-    POE_TRACE_CALL((", %d", fds[i]));
     PUSHs(sv_2mortal(newSViv(fds[i])));
   }
-  POE_TRACE_CALL((")\n"));
   PUTBACK;
 
   perl_call_method("_data_handle_enqueue_ready", G_DISCARD);
@@ -250,11 +291,16 @@ Returns the current epoch time as a floating point value.
 
 double
 poe_timeh(void) {
-  struct timeval tv;
-
-  gettimeofday(&tv, NULL);
-
-  return tv.tv_sec + 1e-6 * tv.tv_usec;
+  if (th_nvtime) {
+    return th_nvtime();
+  }
+  else {
+    struct timeval tv;
+    
+    gettimeofday(&tv, NULL);
+    
+    return tv.tv_sec + 1e-6 * tv.tv_usec;
+  }
 }
 
 /*
@@ -290,13 +336,6 @@ poe_trap(const char *fmt, ...) {
 }
 
 #ifdef XS_LOOP_TRACE
-
-static int trace_initialized;
-
-static int trace_files;
-static int trace_events;
-static int trace_calls;
-static int trace_statistics;
 
 static int
 get_trace_flag(const char *name) {
@@ -336,11 +375,6 @@ do_trace_initialize(void) {
   trace_initialized = 1;
 }
 
-static PerlIO *
-get_trace_file(void) {
-  return IoIFP(sv_2io(sv_2mortal(newSVpv("POE::Kernel::TRACE_FILE", 0))));
-}
-
 /*
 =head1 TRACE MACROS
 
@@ -377,43 +411,76 @@ Update a statistic, controlled by the POE TRACE_STATISTICS constant.
 void
 poexs_trace_file(const char *fmt, ...) {
   va_list va;
+  dSP;
 
   if (!trace_initialized)
     do_trace_initialize();
   if (!trace_files)
     return;
 
+  ENTER;
+  SAVETMPS;
+  EXTEND(SP, 3);
+  PUSHMARK(SP);
   va_start(va, fmt);
-  PerlIO_vprintf(get_trace_file(), fmt, va);
+  PUSHs(sv_2mortal(vnewSVpvf(fmt, &va)));
   va_end(va);
+  PUTBACK;
+
+  perl_call_pv("POE::Kernel::_warn", G_DISCARD);
+
+  FREETMPS;
+  LEAVE;
 }
 
 void
 poexs_trace_event(const char *fmt, ...) {
   va_list va;
+  dSP;
 
   if (!trace_initialized)
     do_trace_initialize();
   if (!trace_events)
     return;
 
+  ENTER;
+  SAVETMPS;
+  EXTEND(SP, 3);
+  PUSHMARK(SP);
   va_start(va, fmt);
-  PerlIO_vprintf(get_trace_file(), fmt, va);
+  PUSHs(sv_2mortal(vnewSVpvf(fmt, &va)));
   va_end(va);
+  PUTBACK;
+
+  perl_call_pv("POE::Kernel::_warn", G_DISCARD);
+
+  FREETMPS;
+  LEAVE;
 }
 
 void
 poexs_trace_call(const char *fmt, ...) {
   va_list va;
+  dSP;
 
   if (!trace_initialized)
     do_trace_initialize();
   if (!trace_calls)
     return;
 
+  ENTER;
+  SAVETMPS;
+  EXTEND(SP, 3);
+  PUSHMARK(SP);
   va_start(va, fmt);
-  PerlIO_vprintf(get_trace_file(), fmt, va);
+  PUSHs(sv_2mortal(vnewSVpvf(fmt, &va)));
   va_end(va);
+  PUTBACK;
+
+  perl_call_pv("POE::Kernel::_warn", G_DISCARD);
+
+  FREETMPS;
+  LEAVE;
 }
 
 void
@@ -440,5 +507,58 @@ poexs_data_stat_add(SV *kernel, const char *name, double value) {
   LEAVE;
 }
 
-#endif
+/*
+=item poe_tracing_files()
 
+Returns non-zero if file tracing is enabled.
+
+Only available if XS_LOOP_TRACE is defined.
+
+=cut
+*/
+
+int
+poe_tracing_files(void) {
+  if (!trace_initialized)
+    do_trace_initialize();
+
+  return trace_files;
+}
+
+/*
+=item poe_tracing_events()
+
+Returns non-zero if event tracing is enabled.
+
+Only available if XS_LOOP_TRACE is defined.
+
+=cut
+*/
+
+int
+poe_tracing_events(void) {
+  if (!trace_initialized)
+    do_trace_initialize();
+
+  return trace_events;
+}
+
+/*
+=item poe_tracing_calls()
+
+Returns non-zero if call tracing is enabled.
+
+Only available if XS_LOOP_TRACE is defined.
+
+=cut
+*/
+
+int
+poe_tracing_calls(void) {
+  if (!trace_initialized)
+    do_trace_initialize();
+
+  return trace_calls;
+}
+
+#endif
